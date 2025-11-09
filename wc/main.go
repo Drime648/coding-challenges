@@ -8,40 +8,36 @@ import (
 	"github.com/Drime648/coding-challenges/wc/internal/count"
 	"os"
 	"fmt"
+	// "io"
 )
 
-type commands struct {
-	bytesCount bool
-	wordsCount bool
-	linesCount bool
-	charsCount bool
-}
+type statsIndex int
+const (
+	NumBytesIndex statsIndex = 0
+	NumLinesIndex statsIndex = 1
+	NumWordsIndex statsIndex = 2
+	NumCharsIndex statsIndex = 3
+)
 
 func main() {
-
-	c := commands {
-		bytesCount: false,
-		wordsCount: false,
-		linesCount: false,
-		charsCount: false,
-	}
-
+	callbacks := make([]func(count.Stats) int, 4)
 	input := os.Stdin
 	var err error
 
 	for _, cmd := range os.Args[1:] {
 		switch cmd {
 			case "-c":
-				c.bytesCount = true
+				callbacks[NumBytesIndex] = func(s count.Stats) int {return s.NumBytes}
 			
 			case "-l":
-				c.linesCount = true
+				callbacks[NumLinesIndex] = func(s count.Stats) int {return s.NumLines}
 			
 			case "-w":
-				c.wordsCount = true
+				callbacks[NumWordsIndex] = func(s count.Stats) int {return s.NumWords}
 			
 			case "-m":
-				c.charsCount = true
+				callbacks[NumCharsIndex] = func(s count.Stats) int {return s.NumChars}
+
 			default:
 				input, err = os.Open(cmd)
 				if err != nil {
@@ -52,31 +48,20 @@ func main() {
 	}
 
 	output := ""
-	if c.bytesCount {
-		bytesCount, err := count.CountBytes(input)
-		if err != nil {
-			fmt.Fprintf(os.Stderr,"error with counting bytes: %v\n", err )
-			os.Exit(1)
-		}
-		output = fmt.Sprintf("%s %d", output, bytesCount)
+
+	stats, err := count.CountData(input)
+	if err != nil {
+		fmt.Fprintf(os.Stderr,"error: %v\n", err )
+		os.Exit(1)
 	}
 
-	if c.linesCount {
-		linesCount, err := count.CountLines(input)
-		if err != nil {
-			fmt.Fprintf(os.Stderr,"error with counting lines: %v\n", err )
-			os.Exit(1)
+	for _, callback := range callbacks {
+		if callback == nil {
+			continue
 		}
-		output = fmt.Sprintf("%s %d", output, linesCount)
-	}
+		count:= callback(stats)
+		output = fmt.Sprintf("%s %d", output, count)
 
-	if c.wordsCount {
-		wordsCount, err := count.CountWords(input)
-		if err != nil {
-			fmt.Fprintf(os.Stderr,"error with counting words: %v\n", err )
-			os.Exit(1)
-		}
-		output = fmt.Sprintf("%s %d", output, wordsCount)
 	}
 	fmt.Printf("%s\n", output)
 }
