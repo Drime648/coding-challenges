@@ -34,6 +34,11 @@ func CountData(r io.Reader) (Stats, error) {
 			return Stats{}, err
 		}
 		stats.NumBytes += n
+
+		stringData := string(data[:n])
+		for range stringData {
+			stats.NumChars++  // using r implicitly for counting
+		}
 		
 		for i := 0; i < n; i++ {
 			if unicode.IsSpace(rune(data[i])) && !unicode.IsSpace(rune(prev)){

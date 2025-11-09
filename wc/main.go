@@ -83,7 +83,7 @@ func main() {
 			continue
 		}
 		count:= callback(stats)
-		output = fmt.Sprintf("%s %d", output, count)
+		output = fmt.Sprintf("%s  %d", output, count)
 
 	}
 	fmt.Printf("%s %s\n", output, outputName)
