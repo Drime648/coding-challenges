@@ -24,19 +24,33 @@ func main() {
 	input := os.Stdin
 	var err error
 
+	flagFuncs := map[statsIndex]func(count.Stats) int {
+		NumBytesIndex: func(s count.Stats) int {return s.NumBytes},
+		NumLinesIndex: func(s count.Stats) int {return s.NumLines},
+		NumWordsIndex: func(s count.Stats) int {return s.NumWords},
+		NumCharsIndex: func(s count.Stats) int {return s.NumChars},
+	}
+	
+	flagFound := false
+	outputName := ""
+
 	for _, cmd := range os.Args[1:] {
 		switch cmd {
 			case "-c":
-				callbacks[NumBytesIndex] = func(s count.Stats) int {return s.NumBytes}
+				callbacks[NumBytesIndex] = flagFuncs[NumBytesIndex]
+				flagFound = true
 			
 			case "-l":
-				callbacks[NumLinesIndex] = func(s count.Stats) int {return s.NumLines}
+				callbacks[NumLinesIndex] = flagFuncs[NumLinesIndex]
+				flagFound = true
 			
 			case "-w":
-				callbacks[NumWordsIndex] = func(s count.Stats) int {return s.NumWords}
+				callbacks[NumWordsIndex] = flagFuncs[NumWordsIndex]
+				flagFound = true
 			
 			case "-m":
-				callbacks[NumCharsIndex] = func(s count.Stats) int {return s.NumChars}
+				callbacks[NumCharsIndex] = flagFuncs[NumCharsIndex]
+				flagFound = true
 
 			default:
 				input, err = os.Open(cmd)
@@ -44,8 +58,17 @@ func main() {
 					fmt.Fprintf(os.Stderr,"Invalid Input: %v\n", err )
 					os.Exit(1)
 				}
+				outputName = cmd
 		}
 	}
+	if !flagFound { //no flags means I do everything.
+		callbacks[NumBytesIndex] = flagFuncs[NumBytesIndex]
+		callbacks[NumLinesIndex] = flagFuncs[NumLinesIndex]
+		callbacks[NumWordsIndex] = flagFuncs[NumWordsIndex]
+		callbacks[NumCharsIndex] = flagFuncs[NumCharsIndex]
+	}
+
+
 
 	output := ""
 
@@ -63,5 +86,5 @@ func main() {
 		output = fmt.Sprintf("%s %d", output, count)
 
 	}
-	fmt.Printf("%s\n", output)
+	fmt.Printf("%s %s\n", output, outputName)
 }
