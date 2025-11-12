@@ -1,0 +1,43 @@
+package main
+
+import (
+	"fmt"
+	"net"
+	"os"
+	"io"
+)
+
+func main() {
+	listener, err := net.Listen("tcp", ":6379")
+	
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		os.Exit(1)
+	}
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Printf("error: %v", err)
+		}
+		go handleConnection(conn)
+	}
+}
+
+
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	for {
+		data := make([]byte, 1024)
+		_, err := conn.Read(data)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Printf("error reading from client: %v", err.Error())
+		}
+
+		conn.Write([]byte("+OK\r\n"))
+	}
+}
