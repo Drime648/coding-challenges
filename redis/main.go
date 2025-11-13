@@ -6,6 +6,7 @@ import (
 	"os"
 	"io"
 	"github.com/Drime648/coding-challenges/redis/internal/resp"
+	"strings"
 )
 
 func main() {
@@ -36,11 +37,34 @@ func handleConnection(conn net.Conn) {
 			if err == io.EOF {
 				return
 			}
-			fmt.Printf("error reading from client: %v", err)
+			fmt.Printf("error reading from client: %v\n", err)
 			continue
 		}
 		fmt.Println(value)
 
-		respClient.Write(resp.Value{Typ: resp.TypeString, Str: "OK"})
+		if value.Typ != resp.TypeArray { //client needs to only send array
+			fmt.Println("Invalid request, must be an array")
+			continue
+		}
+		if len(value.Array) < 1 {
+			fmt.Println("Invalid request, array must be of length >0")
+			continue
+		}
+
+		command := strings.ToUpper(value.Array[0].Bulk)
+		callback, exists := Handlers[command]
+		if !exists {
+			msg := fmt.Sprintf("ERR unknown command '%s'", command)
+			fmt.Println(msg)
+			respClient.Write(resp.Value{Typ: resp.TypeError, Str: msg,})
+			continue
+		}
+
+		responseVal := callback(value.Array[1:])
+
+
+		respClient.Write(responseVal)
+
+		// respClient.Write(resp.Value{Typ: resp.TypeString, Str: "OK"})
 	}
 }
