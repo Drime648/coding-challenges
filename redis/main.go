@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"io"
+	"github.com/Drime648/coding-challenges/redis/internal/resp"
 )
 
 func main() {
@@ -28,9 +29,9 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	resp := NewResp(conn)
+	respClient := resp.NewResp(conn)
 	for {
-		value, err := resp.Read()
+		value, err := respClient.Read()
 		if err != nil {
 			if err == io.EOF {
 				return
