@@ -15,7 +15,7 @@ type Database struct {
 	mutex sync.RWMutex
 }
 
-var db = Database{}
+var db = Database{entries: map[string]string{}}
 
 
 
@@ -23,6 +23,7 @@ var Handlers = map[string]func([]resp.Value) (resp.Value, error) {
 	"COMMAND": handleCommand,
 	"PING": handlePing,
 	"SET": handleSet,
+	"GET": handleGet,
 }
 
 func handleCommand(args []resp.Value) (resp.Value, error) {
@@ -49,6 +50,29 @@ func handleSet(args []resp.Value) (resp.Value, error) {
 	db.entries[key] = val
 	db.mutex.Unlock()
 
+
 	return resp.Value{Typ:resp.TypeString, Str: "OK"}, nil
 
+}
+
+func handleGet(args []resp.Value) (resp.Value, error) {
+	if len(args) != 1{
+		return resp.Value{}, fmt.Errorf("Invalid Number of arguments")
+	}
+	if args[0].Typ != resp.TypeBulk {
+		return resp.Value{}, fmt.Errorf("Invalid argument types. Must be Bulk Strings")
+	}
+
+	key := args[0].Bulk
+
+	db.mutex.RLock()
+	val, exists := db.entries[key]
+	db.mutex.RUnlock()
+	
+	if !exists {
+		return resp.Value{Typ:resp.TypeNull}, nil
+	}
+
+
+	return resp.Value{Typ:resp.TypeBulk, Bulk: val}, nil
 }

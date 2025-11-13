@@ -56,10 +56,10 @@ func (v Value) marshalInt() []byte {
 
 func (v Value) marshalBulk() []byte {
 	bytes := []byte{byte(TypeBulk)}
-	lenStr := strconv.Itoa(len(v.Str))
+	lenStr := strconv.Itoa(len(v.Bulk))
 	bytes = append(bytes, []byte(lenStr)...)
 	bytes = append(bytes, '\r', '\n')
-	bytes = append(bytes, []byte(v.Str)...)
+	bytes = append(bytes, []byte(v.Bulk)...)
 	bytes = append(bytes, '\r', '\n')
 	return bytes
 }

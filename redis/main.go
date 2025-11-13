@@ -66,7 +66,7 @@ func handleConnection(conn net.Conn) {
 			respClient.Write(resp.Value{Typ: resp.TypeError, Str: err.Error(),})
 			continue
 		}
-
+		// fmt.Println(responseVal)
 
 		respClient.Write(responseVal)
 
