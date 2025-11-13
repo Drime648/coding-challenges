@@ -41,6 +41,6 @@ func handleConnection(conn net.Conn) {
 		}
 		fmt.Println(value)
 
-		conn.Write([]byte("+OK\r\n"))
+		respClient.Write(resp.Value{Typ: resp.TypeString, Str: "OK"})
 	}
 }

@@ -6,8 +6,6 @@ import (
 )
 
 
-
-
 func (r *Resp) readLine() ([]byte, int, error) {
 	n := 0
 	line := []byte{}
@@ -66,7 +64,7 @@ func (r *Resp) readBulk() (Value, error){
 		return Value{}, err
 	}
 
-	val := Value{typ: TypeBulk}
+	val := Value{Typ: TypeBulk}
 
 	bulkStr := make([]byte, strLen)
 	_, err = r.reader.Read(bulkStr)
@@ -74,7 +72,7 @@ func (r *Resp) readBulk() (Value, error){
 		return Value{}, err
 	}
 
-	val.bulk = string(bulkStr)
+	val.Bulk = string(bulkStr)
 	// fmt.Printf("Bulk string: %s\n", val.bulk)
 
 	r.readLine()//clear out any leftover from the string
@@ -102,7 +100,7 @@ func (r *Resp)readArray() (Value, error){
 		arr[i] = v
 	}
 	val := Value{}
-	val.typ = TypeArray
-	val.array = arr
+	val.Typ = TypeArray
+	val.Array = arr
 	return val, nil
 }

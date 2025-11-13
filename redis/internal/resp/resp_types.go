@@ -13,20 +13,24 @@ const (
 	TypeString valueType = '+'
 	TypeInt valueType = ':'
 	TypeError valueType = '-'
+	TypeNull valueType = 0
 )
 
 type Value struct {
-	typ valueType
-	str string
-	num int
-	bulk string
-	array []Value
+	Typ valueType
+	Str string
+	Num int
+	Bulk string
+	Array []Value
 }
 
 type Resp struct {
 	reader *bufio.Reader
+	writer io.Writer
 }
 
-func NewResp(rd io.Reader) *Resp {
-	return &Resp{reader: bufio.NewReader(rd),}
+func NewResp(rd io.ReadWriteCloser) *Resp {
+	return &Resp{
+		reader: bufio.NewReader(rd),
+		writer: rd}
 }
