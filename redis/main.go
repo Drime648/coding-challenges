@@ -60,7 +60,12 @@ func handleConnection(conn net.Conn) {
 			continue
 		}
 
-		responseVal := callback(value.Array[1:])
+		responseVal, err := callback(value.Array[1:])
+		if err != nil {
+			fmt.Println(err)
+			respClient.Write(resp.Value{Typ: resp.TypeError, Str: err.Error(),})
+			continue
+		}
 
 
 		respClient.Write(responseVal)
