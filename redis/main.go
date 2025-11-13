@@ -28,15 +28,17 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
+	resp := NewResp(conn)
 	for {
-		data := make([]byte, 1024)
-		_, err := conn.Read(data)
+		value, err := resp.Read()
 		if err != nil {
 			if err == io.EOF {
-				break
+				return
 			}
-			fmt.Printf("error reading from client: %v", err.Error())
+			fmt.Printf("error reading from client: %v", err)
+			continue
 		}
+		fmt.Println(value)
 
 		conn.Write([]byte("+OK\r\n"))
 	}
