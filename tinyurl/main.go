@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	// "github.com/redis/go-redis/v9"
 )
 
 
@@ -19,5 +18,4 @@ func main(){
 	if err != nil {
 		panic(fmt.Sprintf("Could not start web server: %v\n", err))
 	}
-
 }
