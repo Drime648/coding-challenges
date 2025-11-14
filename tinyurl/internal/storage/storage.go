@@ -58,9 +58,9 @@ func SaveUrl(originalUrl string, shortenedUrl string) error {
 	return nil
 }
 
-func GetUrl(shortenedUrl string) (string, err) {
+func GetUrl(shortenedUrl string) (string, error) {
 
-	originalUrl, err := storeService.redisClient.Get(ctx, shortenedUrl)
+	originalUrl, err := storeService.redisClient.Get(ctx, shortenedUrl).Result()
 	if err != nil {
 		return "", fmt.Errorf("Failed to retrieve original URL for the shortened url %s | Error: %v", shortenedUrl, err)
 	}
