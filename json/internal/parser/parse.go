@@ -1,54 +1,89 @@
 package parser
 
-
 import (
 	"bufio"
-	"io"
 	"fmt"
-	"unicode"
+	// "io"
+	// "unicode"
 )
 
-
-func ParseJson(rd bufio.Reader) (Object, error) {
-
-	obj := Object{}
+func ParseObject(rd *bufio.Reader) (Object, error) {
+	obj := Object{values: map[string]Value{}}
 
 	valid, err := checkByte(rd, '{')
 	if err != nil {
 		return obj, err
 	}
 	if !valid {
-		return obj, fmt.Errorf("Invalid start byte, must start with {")
+		return obj, fmt.Errorf("invalid start byte, must start with {")
 	}
-
-
-
-}
-
-
-//return true if the next byte is what you expect.
-func checkByte(rd bufio.Reader, expected byte) (bool, error) {
-	actual, err := rd.ReadByte()
+	rd.ReadByte() // consume the {
+	err = clearWhitespace(rd)
 	if err != nil {
-		return false, err
+		return obj, err
 	}
-	match := actual == expected
-	return match, nil
 
+	for {
+		isEnd, err := checkByte(rd, '}')
+		if err != nil {
+			return obj, err
+		}
+		if isEnd {
+			break
+		}
+
+		name, err := parseString(rd)
+		if err != nil {
+			return obj, err
+		}
+		fmt.Printf("name: %s\n", name)
+
+		isColon, err := checkByte(rd, ':')
+		if err != nil {
+			return obj, err
+		}
+		if !isColon {
+			return obj, fmt.Errorf("must separate name and value with :")
+		}
+		rd.ReadByte()
+		clearWhitespace(rd)
+		value, err := parseValue(rd)
+		if err != nil {
+			return obj, err
+		}
+		obj.values[name] = value
+
+	}
+	return obj, nil
 }
 
-
-
-//reads through all the whitespace till the next non-whitespace char, leaves that in buffer
-func clearWhitespace(rd bufio.Reader) error {
-	for {
-		r, _, err := rd.ReadRune()
-		if err != nil {
-			return err
-		}
-		if !unicode.IsSpace(r) {
-			rd.UnreadRune()
-			return nil
-		}
+func parseString(rd *bufio.Reader) (string, error) {
+	isString, err := checkByte(rd, '"')
+	if err != nil {
+		return "", err
 	}
+	if !isString {
+		return "", fmt.Errorf("must have a string in Object, starting with \" ")
+	}
+	rd.ReadByte() // consume first quote
+
+	resultStr := ""
+	for {
+		b, err := rd.ReadByte()
+		if err != nil {
+			return "", err
+		}
+		if b == '"' {
+			break
+		}
+		resultStr += string(b)
+	}
+
+	return resultStr, nil
+}
+
+func parseValue(rd *bufio.Reader) (Value, error) {
+	s, _ := parseString(rd)
+	fmt.Printf("value: %s\n", s)
+	return Value{str: s}, nil
 }

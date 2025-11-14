@@ -1,0 +1,21 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"strings"
+
+	"github.com/Drime648/coding-challenges/json/internal/parser"
+)
+
+func main() {
+	test := "{\"name\": \"dhruv\"}"
+	x := strings.NewReader(test)
+	rd := bufio.NewReader(x)
+
+	output, err := parser.ParseObject(rd)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(output)
+}
