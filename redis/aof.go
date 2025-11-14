@@ -4,6 +4,9 @@ import (
 	"github.com/Drime648/coding-challenges/redis/internal/resp"
 	"sync"
 	"time"
+	"io"
+	"strings"
+	"fmt"
 )
 
 type Aof struct {
@@ -55,5 +58,32 @@ func (aof *Aof) Write(value resp.Value) error {
 
 }
 
+func (aof *Aof) Read() error {
+
+	aof.mutex.Lock()
+	defer aof.mutex.Unlock()
+
+	fmt.Println("Started Reading Aof...")
+
+	respParser := resp.NewResp(aof.file)
+	for {
+		value, err := respParser.Read()
+		if err != nil {
+			if err == io.EOF{ //end loop because we are at end of file
+				break
+			}
+			return err
+		}
+		//assume that the file has no errors in respect to command
+		//because we only wrote when it was a successful command
+		
+		command := strings.ToUpper(value.Array[0].Bulk)
+		callback, _ := Handlers[command]
+		callback(value.Array[1:])
+	}
+	fmt.Println("Finished Reading Aof")
+
+	return nil
+}
 
 

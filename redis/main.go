@@ -24,7 +24,11 @@ func main() {
 	}
 	defer aof.Close()
 
+	
+	aof.Read()
 
+
+	fmt.Println("Server is ready on port 6379!")
 
 	for {
 		conn, err := listener.Accept()

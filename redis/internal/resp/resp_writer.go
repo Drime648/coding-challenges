@@ -68,6 +68,7 @@ func (v Value) marshalArray() []byte {
 	bytes := []byte{byte(TypeArray)}
 	lenArr := strconv.Itoa(len(v.Array))
 	bytes = append(bytes, []byte(lenArr)...)
+	bytes = append(bytes, '\r', '\n')
 
 	for _, val := range v.Array {
 		bytes = append(bytes, val.Marshal()...)
