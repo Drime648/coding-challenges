@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"github.com/itchyny/base58-go"
 	"fmt"
+	"math/big"
 )
 
 //plan: sha256 the url, then get the base58 of it
@@ -26,9 +27,10 @@ func base58Encode(bytes []byte) (string, error) {
 	return string(encoded), nil
 }
 
-func generateUrl(originalUrl string) (string, error) {
+func GenerateUrl(originalUrl string) (string, error) {
 	hash := generateHash(originalUrl)
-	encoded, err := base58Encode(hash)
+	generatedNumber := new(big.Int).SetBytes(hash).Uint64()
+	encoded, err := base58Encode([]byte(fmt.Sprintf("%d", generatedNumber)))
 	if err != nil {
 		return "", err
 	}

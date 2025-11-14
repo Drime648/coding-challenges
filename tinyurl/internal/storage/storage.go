@@ -31,7 +31,7 @@ func InitStorage() error {
 
 	err := testConnection(redisClient)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Println("Redis initialized succesfully")
 
