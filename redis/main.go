@@ -17,17 +17,25 @@ func main() {
 		os.Exit(1)
 	}
 
+	aof, err := NewAof("redis_log.aof")
+	if err != nil {
+		fmt.Printf("Error with Creating Aof: %v\n", err)
+		os.Exit(1)
+	}
+
+
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Printf("error: %v", err)
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, aof)
 	}
 }
 
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, aof *Aof) {
 	defer conn.Close()
 
 	respClient := resp.NewResp(conn)
@@ -40,7 +48,7 @@ func handleConnection(conn net.Conn) {
 			fmt.Printf("error reading from client: %v\n", err)
 			continue
 		}
-		fmt.Println(value)
+		// fmt.Println(value)
 
 		if value.Typ != resp.TypeArray { //client needs to only send array
 			fmt.Println("Invalid request, must be an array")
@@ -66,6 +74,15 @@ func handleConnection(conn net.Conn) {
 			respClient.Write(resp.Value{Typ: resp.TypeError, Str: err.Error(),})
 			continue
 		}
+		
+		//command was successful here, so write to log
+		//Only need to write SET or HSET because that will modify it.
+
+		if command == "SET" || command == "HSET" {
+			aof.Write(value)
+		}
+
+
 		// fmt.Println(responseVal)
 
 		respClient.Write(responseVal)
