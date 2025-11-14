@@ -1,0 +1,23 @@
+package main
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	// "github.com/redis/go-redis/v9"
+)
+
+
+func main(){
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Hello World",
+		})
+	})
+
+	err := r.Run(":9090")
+	if err != nil {
+		panic(fmt.Sprintf("Could not start web server: %v\n", err))
+	}
+
+}
