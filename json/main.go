@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	test := "{\"name\": \"dhruv\"}"
+	test := "{\"name\": \"dhruv\", \"age\": \"19\"}"
 	x := strings.NewReader(test)
 	rd := bufio.NewReader(x)
 

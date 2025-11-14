@@ -23,15 +23,17 @@ func ParseObject(rd *bufio.Reader) (Object, error) {
 		return obj, err
 	}
 
-	for {
-		isEnd, err := checkByte(rd, '}')
-		if err != nil {
-			return obj, err
-		}
-		if isEnd {
-			break
-		}
+	isEnd, err := checkByte(rd, '}')
+	if err != nil {
+		return obj, err
+	}
+	if isEnd {
+		return obj, nil
+	}
 
+	for {
+
+		clearWhitespace(rd)
 		name, err := parseString(rd)
 		if err != nil {
 			return obj, err
@@ -52,6 +54,23 @@ func ParseObject(rd *bufio.Reader) (Object, error) {
 			return obj, err
 		}
 		obj.values[name] = value
+
+		isEnd, err = checkByte(rd, '}')
+		if err != nil {
+			return obj, err
+		}
+		if isEnd {
+			break
+		}
+
+		isComma, err := checkByte(rd, ',')
+		if err != nil {
+			return obj, err
+		}
+		if !isComma {
+			return obj, fmt.Errorf("invalid format for Object, needs , to separate values")
+		}
+		rd.ReadByte() // consume comma
 
 	}
 	return obj, nil
