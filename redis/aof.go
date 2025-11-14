@@ -1,5 +1,4 @@
 package main
-
 import (
 	"os"
 	"github.com/Drime648/coding-challenges/redis/internal/resp"
@@ -47,11 +46,14 @@ func (aof *Aof) Write(value resp.Value) error {
 	aof.mutex.Lock()
 	defer aof.mutex.Unlock()
 
-	bytes := value.Marshal
+	bytes := value.Marshal()
 	_, err := aof.file.Write(bytes)
 	if err != nil {
-		return error
+		return err
 	}
 	return nil
 
 }
+
+
+

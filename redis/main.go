@@ -22,6 +22,7 @@ func main() {
 		fmt.Printf("Error with Creating Aof: %v\n", err)
 		os.Exit(1)
 	}
+	defer aof.Close()
 
 
 
