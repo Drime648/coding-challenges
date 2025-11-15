@@ -38,7 +38,6 @@ func ParseObject(rd *bufio.Reader) (Object, error) {
 		if err != nil {
 			return obj, err
 		}
-		fmt.Printf("name: %s\n", name)
 
 		isColon, err := checkByte(rd, ':')
 		if err != nil {
@@ -55,22 +54,25 @@ func ParseObject(rd *bufio.Reader) (Object, error) {
 		}
 		obj.values[name] = value
 
+		fmt.Println(obj)
+		isComma, err := checkByte(rd, ',')
+		if err != nil {
+			return obj, err
+		}
+		if isComma {
+			rd.ReadByte() // consume comma
+			continue
+		}
+
+		clearWhitespace(rd)
 		isEnd, err = checkByte(rd, '}')
 		if err != nil {
 			return obj, err
 		}
 		if isEnd {
+			fmt.Println("found end of object")
 			break
 		}
-
-		isComma, err := checkByte(rd, ',')
-		if err != nil {
-			return obj, err
-		}
-		if !isComma {
-			return obj, fmt.Errorf("invalid format for Object, needs , to separate values")
-		}
-		rd.ReadByte() // consume comma
 
 	}
 	return obj, nil
@@ -98,11 +100,88 @@ func parseString(rd *bufio.Reader) (string, error) {
 		resultStr += string(b)
 	}
 
+	fmt.Printf("string:%s\n", resultStr)
 	return resultStr, nil
 }
 
 func parseValue(rd *bufio.Reader) (Value, error) {
-	s, _ := parseString(rd)
-	fmt.Printf("value: %s\n", s)
-	return Value{str: s}, nil
+	val := Value{}
+	valueType, err := getValueType(rd)
+	if err != nil {
+		return val, err
+	}
+
+	val.typ = valueType
+
+	switch valueType {
+	case TypeString:
+		val.str, err = parseString(rd)
+	case TypeArray:
+		val.array, err = parseArray(rd)
+	case TypeObject:
+		val.obj, err = ParseObject(rd)
+	}
+
+	if err != nil {
+		return val, err
+	}
+
+	return val, nil
+}
+
+func parseArray(rd *bufio.Reader) ([]Value, error) {
+	arr := make([]Value, 0)
+	isArray, err := checkByte(rd, '[')
+	if err != nil {
+		return arr, err
+	}
+	if !isArray {
+		return arr, fmt.Errorf("invalid array format")
+	}
+	rd.ReadByte() // clear out the [
+
+	err = clearWhitespace(rd)
+	if err != nil {
+		return arr, err
+	}
+
+	isEnd, err := checkByte(rd, ']')
+	if err != nil {
+		return arr, err
+	}
+	if isEnd {
+		return arr, nil
+	}
+
+	for {
+		clearWhitespace(rd)
+		value, err := parseValue(rd)
+		if err != nil {
+			return arr, err
+		}
+		arr = append(arr, value)
+		isComma, err := checkByte(rd, ',')
+		if err != nil {
+			return arr, err
+		}
+		if isComma {
+			rd.ReadByte() // consume comma
+			continue
+		}
+
+		clearWhitespace(rd)
+
+		isEnd, err = checkByte(rd, ']')
+		if err != nil {
+			return arr, err
+		}
+		if isEnd {
+			rd.ReadByte() // clear our ]
+			fmt.Println("Found end of array")
+			break
+		}
+
+		return arr, fmt.Errorf("invalid format for Object, needs , to separate values")
+	}
+	return arr, nil
 }

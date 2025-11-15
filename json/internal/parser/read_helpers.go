@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"fmt"
 	"unicode"
 )
 
@@ -12,6 +13,7 @@ func checkByte(rd *bufio.Reader, expected byte) (bool, error) {
 		return false, err
 	}
 	rd.UnreadByte() // restore the byte
+	fmt.Printf("checking for byte: %v | found byte: %v\n", string(expected), string(actual))
 	match := actual == expected
 	return match, nil
 }
@@ -38,4 +40,32 @@ func clearWhitespace(rd *bufio.Reader) error {
 			return nil
 		}
 	}
+}
+
+// checks the upcoming bytes to see what type of thing this is
+func getValueType(rd *bufio.Reader) (ValueType, error) {
+	b, err := rd.ReadByte()
+	if err != nil {
+		return TypeNull, err
+	}
+	rd.UnreadByte()
+
+	switch b {
+	case '"':
+		return TypeString, nil
+	case '[':
+		return TypeArray, nil
+	case '{':
+		return TypeObject, nil
+	case '-':
+		return TypeNumber, nil
+	case 't': // start of "true" or "false"
+		return TypeBoolean, nil
+	case 'f':
+		return TypeBoolean, nil
+	}
+
+	// TODO: implement better checking for numbers
+
+	return TypeNull, nil
 }

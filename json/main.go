@@ -18,4 +18,9 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println(output)
+
+	y := map[string]string{
+		"hi": "bye",
+	}
+	fmt.Println(y)
 }
