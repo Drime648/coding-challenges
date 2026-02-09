@@ -19,14 +19,14 @@ pub struct ElementData {
 type AttrMap = HashMap<String, String>;
 
 impl Node {
-    fn text(data: String) -> Node {
+    pub fn text(data: String) -> Node {
         Node {
             children: vec![],
             node_type: NodeType::Text(data),
         }
     }
 
-    fn element(tag_name: String, attr_map: AttrMap, children: Vec<NodeType>) -> Node {
+    pub fn element(tag_name: String, attr_map: AttrMap, children: Vec<Node>) -> Node {
         Node {
             children,
             node_type: NodeType::Element(ElementData { tag_name, attr_map }),

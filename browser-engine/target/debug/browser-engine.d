@@ -1,1 +1,1 @@
-/Users/dhruv/coding/coding-challenges/browser-engine/target/debug/browser-engine: /Users/dhruv/coding/coding-challenges/browser-engine/src/main.rs
+/Users/dhruv/coding/coding-challenges/browser-engine/target/debug/browser-engine: /Users/dhruv/coding/coding-challenges/browser-engine/src/domparser/mod.rs /Users/dhruv/coding/coding-challenges/browser-engine/src/domparser/parser.rs /Users/dhruv/coding/coding-challenges/browser-engine/src/domparser/utils.rs /Users/dhruv/coding/coding-challenges/browser-engine/src/main.rs

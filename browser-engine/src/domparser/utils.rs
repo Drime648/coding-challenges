@@ -20,11 +20,12 @@ fn print_node_type(input: &NodeType) {
             print!("{}", text);
         }
         NodeType::Element(elementData) => {
-            print!("<{} ", elementData.tag_name);
+            print!("<{}", elementData.tag_name);
             for (key, value) in &elementData.attr_map {
-                print!("{} = {} ", key, value);
+                print!(" {} = {}", key, value);
             }
             print!(">");
         }
     }
+    println!();
 }
