@@ -2,7 +2,7 @@ mod domparser;
 
 use std::collections::HashMap;
 
-use domparser::parser::Node;
+use domparser::types::Node;
 use domparser::utils::print_node;
 
 fn main() {

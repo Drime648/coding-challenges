@@ -1,4 +1,4 @@
-use crate::domparser::parser::{Node, NodeType};
+use crate::domparser::types::{Node, NodeType};
 
 pub fn print_node(input: &Node, level: i32) {
     print_offset(level);
