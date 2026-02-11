@@ -1,0 +1,17 @@
+Program = _{SOI ~ Expr ~ EOF}
+
+Term = {Int | "(" ~ Expr ~ ")" }
+
+Expr = {BinaryExpr | UnaryExpr | Term}
+
+UnaryExpr = {Operator ~ Term}
+
+BinaryExpr = { (UnaryExpr | Term) ~ (Operator ~ Term)+ }
+
+Int = @{ASCII_DIGIT+}
+
+Operator = { "+" | "-" }
+
+WHITESPACE = _{" " | "\t" | "\n" | "\r"}
+
+EOF = _{EOI | ";"}
