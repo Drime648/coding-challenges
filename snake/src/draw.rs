@@ -1,5 +1,5 @@
 use piston_window::{
-    graphics::{Context, rectangle, types::Color},
+    graphics::{rectangle, types::Color},
     *,
 };
 
