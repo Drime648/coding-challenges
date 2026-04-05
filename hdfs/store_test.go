@@ -55,7 +55,6 @@ func TestStore(t *testing.T) {
 	b, err := io.ReadAll(r)
 
 	assert.Equal(t, data, b)
-	s.Delete(key)
 	s.DeleteRoot()
 }
 
