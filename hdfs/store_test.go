@@ -9,9 +9,14 @@ import (
 
 func TestPathTransformFunc(t *testing.T) {
 	key := "bestpic"
-	pathname := CASPathTransformFun(key)
+	pathKey := CASPathTransformFun(key)
+	expectedOriginal := "6f90c0cbffd1b2aa1e69c839a5b9606ff145c565"
 	expectedPathName := "6f90c/0cbff/d1b2a/a1e69/c839a/5b960/6ff14/5c565"
-	assert.Equal(t, expectedPathName, pathname)
+	expectedPathKey := PathKey{
+		Pathname: expectedPathName,
+		Original: expectedOriginal,
+	}
+	assert.Equal(t, expectedPathKey, pathKey)
 }
 
 func TestStore(t *testing.T) {

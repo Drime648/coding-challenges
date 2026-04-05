@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func CASPathTransformFun(key string) string {
+func CASPathTransformFun(key string) PathKey {
 	hash := sha1.Sum([]byte(key))
 	hashStr := hex.EncodeToString(hash[:]) //can convert hardcoded length slice to regular slice
 
@@ -25,10 +25,19 @@ func CASPathTransformFun(key string) string {
 		paths[i] = hashStr[from:to]
 	}
 
-	return strings.Join(paths, "/")
+	return PathKey{
+		Pathname: strings.Join(paths, "/"),
+		Original: hashStr,
+	}
+
 }
 
-type PathTransformFunc func(key string) string
+type PathTransformFunc func(key string) PathKey
+
+type PathKey struct {
+	Pathname string
+	Original string
+}
 
 type StoreOpts struct {
 	PathTransformFunc PathTransformFunc
@@ -49,9 +58,9 @@ func NewStore(opts StoreOpts) *Store {
 }
 
 func (s *Store) writeStream(key string, r io.Reader) error {
-	pathName := s.PathTransformFunc(key)
+	pathKey := s.PathTransformFunc(key)
 
-	if err := os.MkdirAll(pathName, os.ModePerm); err != nil {
+	if err := os.MkdirAll(pathKey.Pathname, os.ModePerm); err != nil {
 		return err
 	}
 
@@ -61,7 +70,7 @@ func (s *Store) writeStream(key string, r io.Reader) error {
 	filenameBytes := md5.Sum(buf.Bytes())
 	filename := hex.EncodeToString(filenameBytes[:])
 
-	pathAndFilename := pathName + "/" + filename
+	pathAndFilename := pathKey.Pathname + "/" + filename
 
 	f, err := os.Create(pathAndFilename)
 	if err != nil {
