@@ -54,4 +54,3 @@ func TestStore(t *testing.T) {
 
 	assert.Equal(t, data, b)
 }
-
