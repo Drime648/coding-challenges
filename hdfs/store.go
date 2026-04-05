@@ -103,6 +103,11 @@ func (s *Store) Delete(key string) error {
 	return os.RemoveAll(fullPathWithRoot)
 }
 
+func (s *Store) DeleteRoot() {
+	root := s.Root
+	os.RemoveAll(root)
+}
+
 func (s *Store) Read(key string) (io.Reader, error) {
 	f, err := s.readStream(key)
 	if err != nil {

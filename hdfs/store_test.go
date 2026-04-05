@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+
 func TestPathTransformFunc(t *testing.T) {
 	key := "bestpic"
 	pathKey := CASPathTransformFun(key)
@@ -33,6 +34,7 @@ func TestStoreDeleteKey(t *testing.T) {
 	assert.Nil(t, s.Delete(key))
 
 	assert.False(t, s.Has(key))
+	s.DeleteRoot()
 }
 
 func TestStore(t *testing.T) {
@@ -53,4 +55,7 @@ func TestStore(t *testing.T) {
 	b, err := io.ReadAll(r)
 
 	assert.Equal(t, data, b)
+	s.Delete(key)
+	s.DeleteRoot()
 }
+
