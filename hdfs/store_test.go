@@ -32,8 +32,7 @@ func TestStoreDeleteKey(t *testing.T) {
 
 	assert.Nil(t, s.Delete(key))
 
-	_, err := s.Read(key)
-	assert.NotNil(t, err)
+	assert.False(t, s.Has(key))
 }
 
 func TestStore(t *testing.T) {
@@ -45,6 +44,8 @@ func TestStore(t *testing.T) {
 
 	data := []byte("some data")
 	assert.Nil(t, s.writeStream(key, bytes.NewReader(data)))
+
+	assert.True(t, s.Has(key))
 
 	r, err := s.Read(key)
 	assert.Nil(t, err)
