@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/Drime648/coding-challenges/hdfs/p2p"
 )
@@ -29,10 +28,10 @@ func main() {
 	}
 	s := NewFileServer(fileServerOpts)
 
-	go func() {
-		time.Sleep(3 * time.Second)
-		s.Stop()
-	}()
+	// go func() {
+	// 	time.Sleep(3 * time.Second)
+	// 	s.Stop()
+	// }()
 
 	if err := s.Start(); err != nil {
 		panic(err)

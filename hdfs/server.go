@@ -39,6 +39,7 @@ func (s *FileServer) Stop() {
 func (s *FileServer) loop() {
 	defer func () {
 		log.Println("file server stopped")
+		s.Transport.Close()
 	}()
 
 	for {
