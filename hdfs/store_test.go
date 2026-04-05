@@ -20,6 +20,22 @@ func TestPathTransformFunc(t *testing.T) {
 	assert.Equal(t, expectedPathKey, pathKey)
 }
 
+func TestStoreDeleteKey(t *testing.T) {
+	opts := StoreOpts{
+		PathTransformFunc: CASPathTransformFun,
+	}
+	s := NewStore(opts)
+	key := "special_key"
+
+	data := []byte("some data")
+	assert.Nil(t, s.writeStream(key, bytes.NewReader(data)))
+
+	assert.Nil(t, s.Delete(key))
+
+	_, err := s.Read(key)
+	assert.NotNil(t, err)
+}
+
 func TestStore(t *testing.T) {
 	opts := StoreOpts{
 		PathTransformFunc: CASPathTransformFun,
@@ -36,7 +52,5 @@ func TestStore(t *testing.T) {
 	b, err := io.ReadAll(r)
 
 	assert.Equal(t, data, b)
-
-
-
 }
+
