@@ -52,9 +52,20 @@ func (t *TCPTransport) Consume() <-chan RPC {
 	return t.rpcch
 }
 
-// Close implements Transport inferface.
+// Close implements Transport interface.
 func (t *TCPTransport) Close() error {
 	return t.listener.Close()
+}
+
+// Dial implements Transport interface.
+func (t *TCPTransport) Dial(addr string) error {
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		return err
+	}
+
+	go t.handleConn(conn, true)
+	return nil
 }
 
 func (t *TCPTransport) ListenAndAccept() error {
@@ -79,11 +90,11 @@ func (t *TCPTransport) startAcceptLoop() {
 			fmt.Printf("TCP accept error: %s\n", err)
 		}
 		fmt.Printf("handling connection: %+v\n", conn)
-		go t.handleConn(conn)
+		go t.handleConn(conn, false)
 	}
 }
 
-func (t *TCPTransport) handleConn(conn net.Conn) {
+func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
 	var err error
 
 	defer func() {

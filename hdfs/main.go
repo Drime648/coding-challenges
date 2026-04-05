@@ -1,20 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Drime648/coding-challenges/hdfs/p2p"
 )
 
-func onPeer(p2p.Peer) error {
-	fmt.Println("Running Peer logic")
-	return nil
-}
+// func onPeer(p2p.Peer) error {
+// 	fmt.Println("Running Peer logic")
+// 	return nil
+// }
 
-func main() {
-
+func makeServer(listenAddr string, nodes ...string) *FileServer {
 	tcpTransportOpts := p2p.TCPTransportOpts{
-		ListenAddr:    ":3000",
+		ListenAddr:    listenAddr,
 		HandshakeFunc: p2p.NopHandshakeFunc,
 		Decoder:       p2p.DefaultDecoder{},
 		// OnPeer: onPeer,
@@ -22,22 +21,28 @@ func main() {
 	tcpTransport := p2p.NewTCPTransport(tcpTransportOpts)
 
 	fileServerOpts := FileServerOpts{
-		StorageRoot:       "3000_files",
+		StorageRoot:       listenAddr + "_network",
 		PathTransformFunc: CASPathTransformFun,
 		Transport:         tcpTransport,
+		BootstrapNodes:    nodes,
 	}
-	s := NewFileServer(fileServerOpts)
+	return NewFileServer(fileServerOpts)
+}
+
+func main() {
+
+	s1 := makeServer(":3000")
+	s2 := makeServer(":4000", ":3000")
+	go func() {
+		log.Fatal(s1.Start())
+	}()
+
+	s2.Start()
 
 	// go func() {
 	// 	time.Sleep(3 * time.Second)
 	// 	s.Stop()
 	// }()
-
-	if err := s.Start(); err != nil {
-		panic(err)
-	}
-
-
 
 
 }
