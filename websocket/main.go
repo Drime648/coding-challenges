@@ -43,13 +43,29 @@ func NewServer() *Server {
 	}
 }
 
-func HandleWS(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
+	upgrader := websocket.Upgrader {
+		ReadBufferSize: 512,
+		WriteBufferSize: 512,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Printf("Error on HTTP connection upgrade: %v\n", err)
+		return
+	}
+
+	client := NewClient(conn)
+
+	s.clients = append(s.clients, client)
 }
 
 //TODO
 // [x] HTTP server
-// [] Upgrade it to WS once client connects
+// [x] Upgrade it to WS once client connects
 // [] Add newly connected ws to server
 // [] Add WS client
 // [] Remove client on disconnect
@@ -57,8 +73,8 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Println("Hello World")
-
-	http.HandleFunc("/", HandleWS)
+	s := NewServer()
+	http.HandleFunc("/", s.HandleWS)
 
 	log.Fatal(http.ListenAndServe(WSPort, nil))
 }
