@@ -60,21 +60,28 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 
 	client := NewClient(conn)
 
+	s.mu.Lock()
 	s.clients = append(s.clients, client)
+	s.mu.Unlock()
+}
+
+func CreateWSServer() {
+	s := NewServer()
+	http.HandleFunc("/", s.HandleWS)
+
+	fmt.Printf("Starting server on port: %s\n", WSPort)
+
+	log.Fatal(http.ListenAndServe(WSPort, nil))
 }
 
 //TODO
 // [x] HTTP server
 // [x] Upgrade it to WS once client connects
-// [] Add newly connected ws to server
 // [] Add WS client
+// [] Add newly connected ws to server
 // [] Remove client on disconnect
 // [] broadcast messages to all clients. No race conditions.
 
 func main() {
-	fmt.Println("Hello World")
-	s := NewServer()
-	http.HandleFunc("/", s.HandleWS)
-
-	log.Fatal(http.ListenAndServe(WSPort, nil))
+	// CreateWSServer()
 }
