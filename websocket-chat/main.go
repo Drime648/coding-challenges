@@ -26,6 +26,19 @@ type ReqMsg struct {
 	Client  *Client
 	Data    string
 }
+type RespMsg struct {
+	MsgType  MsgType
+	Data     string
+	SenderID string
+}
+
+func NewRespMsg(msg *ReqMsg) *RespMsg {
+	return &RespMsg{
+		MsgType:  msg.MsgType,
+		Data:     msg.Data,
+		SenderID: msg.Client.ID,
+	}
+}
 
 type Client struct {
 	ID string
@@ -110,8 +123,8 @@ func (s *Server) AcceptLoop() {
 			s.joinServer(c)
 		case c := <-s.leaveServerCH:
 			s.leaveServer(c)
-		case msg := <- s.broadcastCH:
-			s.broadcast(msg)
+		case msg := <-s.broadcastCH:
+			go s.broadcast(msg)
 		}
 	}
 }
@@ -126,7 +139,25 @@ func (s *Server) leaveServer(c *Client) {
 	fmt.Printf("client left server, cID = %s\n", c.ID)
 }
 
-func (s *Server) broadcast(msg *ReqMsg){
+func (s *Server) broadcast(msg *ReqMsg) {
+	cls := []*Client{}
+	//Want to make a snapshot of the clients before sending
+	s.mu.RLock()
+	for _, c := range s.clients {
+		if c.ID != msg.Client.ID {
+			cls = append(cls, c)
+		}
+	}
+	s.mu.RUnlock()
+	resp := NewRespMsg(msg)
+	for _, c := range cls {
+		if err := c.conn.WriteJSON(resp); err != nil {
+			fmt.Printf("Error sending message to client ID %s. err = %v\n", c.ID, err)
+			continue
+		}
+	}
+
+	fmt.Println("Broadcast has been sent.")
 }
 
 func CreateWSServer() {
@@ -144,7 +175,7 @@ func CreateWSServer() {
 // [x] Upgrade it to WS once client connects
 // [x] Add WS client
 // [x] Add newly connected ws to server
-// [] Remove client on disconnect
+// [x] Remove client on disconnect
 // [] broadcast messages to all clients. No race conditions.
 
 func main() {
