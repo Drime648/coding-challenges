@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,6 +14,18 @@ import (
 var (
 	WSPort = ":3223"
 )
+
+type MsgType string
+
+const (
+	MsgType_Broadcast MsgType = "broadcast"
+)
+
+type ReqMsg struct {
+	MsgType MsgType
+	Client  *Client
+	Data    string
+}
 
 type Client struct {
 	ID string
@@ -30,19 +43,42 @@ func NewClient(conn *websocket.Conn) *Client {
 	}
 }
 
+func (c *Client) readMsgLoop(srv *Server) {
+	defer func() {
+		c.conn.Close()
+		srv.leaveServerCH <- c
+	}()
+	for {
+		_, b, err := c.conn.ReadMessage()
+		if err != nil {
+			return
+		}
+
+		msg := new(ReqMsg)
+		if err = json.Unmarshal(b, msg); err != nil {
+			fmt.Printf("unable to unmarshal msg %v\n", err)
+			continue
+		}
+
+		srv.broadcastCH <- msg
+	}
+}
+
 type Server struct {
 	mu            *sync.RWMutex
 	clients       map[string]*Client
 	joinServerCH  chan *Client
 	leaveServerCH chan *Client
+	broadcastCH   chan *ReqMsg
 }
 
 func NewServer() *Server {
 	return &Server{
-		mu:      new(sync.RWMutex),
-		clients: map[string]*Client{},
-		joinServerCH: make(chan *Client, 64),
+		mu:            new(sync.RWMutex),
+		clients:       map[string]*Client{},
+		joinServerCH:  make(chan *Client, 64),
 		leaveServerCH: make(chan *Client, 64),
+		broadcastCH:   make(chan *ReqMsg, 64),
 	}
 }
 
@@ -63,22 +99,24 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 
 	client := NewClient(conn)
 	s.joinServerCH <- client
+
+	go client.readMsgLoop(s)
 }
 
 func (s *Server) AcceptLoop() {
 	for {
 		select {
-		case c := <- s.joinServerCH:
-			//handle join logic. When a client joins server, this
-			//channel is filled.
+		case c := <-s.joinServerCH:
 			s.joinServer(c)
-		case c := <- s.leaveServerCH:
+		case c := <-s.leaveServerCH:
 			s.leaveServer(c)
+		case msg := <- s.broadcastCH:
+			s.broadcast(msg)
 		}
 	}
 }
 
-func(s *Server) joinServer(c *Client){
+func (s *Server) joinServer(c *Client) {
 	s.clients[c.ID] = c
 	fmt.Printf("client joined server, cID = %s\n", c.ID)
 }
@@ -86,6 +124,9 @@ func(s *Server) joinServer(c *Client){
 func (s *Server) leaveServer(c *Client) {
 	delete(s.clients, c.ID)
 	fmt.Printf("client left server, cID = %s\n", c.ID)
+}
+
+func (s *Server) broadcast(msg *ReqMsg){
 }
 
 func CreateWSServer() {
@@ -101,8 +142,8 @@ func CreateWSServer() {
 //TODO
 // [x] HTTP server
 // [x] Upgrade it to WS once client connects
-// [] Add WS client
-// [] Add newly connected ws to server
+// [x] Add WS client
+// [x] Add newly connected ws to server
 // [] Remove client on disconnect
 // [] broadcast messages to all clients. No race conditions.
 

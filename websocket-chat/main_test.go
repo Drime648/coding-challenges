@@ -33,9 +33,10 @@ func DialServer(wg *sync.WaitGroup) {
 		wg.Done()
 	}()
 
-	fmt.Println("testing connecting to: ", conn.LocalAddr())
+	time.Sleep(2 * time.Second)
+	// fmt.Println("testing connecting to: ", conn.LocalAddr())
 
-	conn.Close()
+	// conn.Close()
 }
 
 func TestConnection(t *testing.T) {
