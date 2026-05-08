@@ -1,5 +1,6 @@
 import { stdin, stdout } from "node:process"
 import { createInterface } from "node:readline"
+import { getCommands } from "./command.js";
 
 
 
@@ -9,6 +10,7 @@ export function cleanInput(input: string): string[] {
 }
 
 export function startREPL() {
+  const commands = getCommands();
   const repl = createInterface({
     input: stdin,
     output: stdout,
@@ -16,9 +18,10 @@ export function startREPL() {
   });
   repl.prompt();
   repl.on("line", (input: string) => {
-    const [command] = cleanInput(input)
+    const tokens = cleanInput(input)
+    const command = tokens[0];
     if (command) {
-      console.log(`Your command was: ${command}`)
+      commands[command].callback();
     }
     repl.prompt();
   });
