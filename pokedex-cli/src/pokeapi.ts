@@ -3,7 +3,7 @@ import { Cache } from "./pokecache.js"
 const SECOND = 1000;
 
 export class PokeAPI {
-  private static readonly baseURL = "https://pokeapi.co/api/v2/location-area";
+  private static readonly baseURL = "https://pokeapi.co/api/v2";
   cache: Cache;
 
   constructor() {
@@ -11,7 +11,7 @@ export class PokeAPI {
   }
 
   async fetchLocationAreas(pageURL?: string): Promise<ShallowLocationAreas> {
-    const url = pageURL ?? PokeAPI.baseURL;
+    const url = pageURL ?? `${PokeAPI.baseURL}/location-area`;
     const cacheData = this.cache.get<ShallowLocationAreas>(url);
     if (cacheData !== undefined) {
       return cacheData;
@@ -23,7 +23,7 @@ export class PokeAPI {
   }
 
   async fetchLocationArea(locationName: string): Promise<LocationArea> {
-    const url = `${PokeAPI.baseURL}/${locationName}`
+    const url = `${PokeAPI.baseURL}/location-area/${locationName}`
     const cacheData = this.cache.get<LocationArea>(url);
     if (cacheData !== undefined) {
       return cacheData;
@@ -32,6 +32,18 @@ export class PokeAPI {
     const locations: LocationArea = await data.json();
     this.cache.add(url, locations);
     return locations;
+  }
+
+  async fetchPokemon(name: string): Promise<PokemonData> {
+    const url = `${PokeAPI.baseURL}/pokemon/${name}`
+    const cacheData = this.cache.get<PokemonData>(url);
+    if (cacheData !== undefined) {
+      return cacheData;
+    }
+    const data = await fetch(url);
+    const pokemonData: PokemonData = await data.json();
+    this.cache.add(url, pokemonData);
+    return pokemonData;
   }
 }
 
@@ -122,3 +134,8 @@ type Method = {
   url: string;
 }
 
+export type PokemonData = {
+  id: number;
+  name: string;
+  base_experience: string;
+}
