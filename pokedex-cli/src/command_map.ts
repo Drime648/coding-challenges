@@ -1,7 +1,7 @@
 import { State } from "./state.js";
 import { ShallowLocationAreas } from "./pokeapi.js";
 
-export async function commandMap(state: State) {
+export async function commandMap(state: State, ..._args: string[]) {
   let locationAreas: ShallowLocationAreas;
   if (state.nextLocationsURL == null) {
     locationAreas = await state.pokeApi.fetchLocationAreas()
@@ -15,7 +15,7 @@ export async function commandMap(state: State) {
   state.prevLocationsURL = locationAreas.previous;
 }
 
-export async function commandMapBack(state: State) {
+export async function commandMapBack(state: State, ..._args: string[]) {
   let locationAreas: ShallowLocationAreas;
   if (state.prevLocationsURL == null) {
     locationAreas = await state.pokeApi.fetchLocationAreas()

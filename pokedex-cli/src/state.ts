@@ -4,12 +4,13 @@ import { commandExit } from "./command_exit.js";
 import { commandHelp } from "./command_help.js"
 import { PokeAPI } from "./pokeapi.js";
 import { commandMap, commandMapBack } from "./command_map.js";
+import { commandExplore } from "./command_explore.js";
 
 
 export type CLICommand = {
   name: string;
   description: string;
-  callback: (state: State) => Promise<void>;
+  callback: (state: State, ...args: string[]) => Promise<void>;
 }
 
 export type State = {
@@ -29,13 +30,18 @@ export function initState(): State {
     },
     map: {
       name: "map",
-      "description": "Get the next 20 Location Areas",
+      description: "Get the next 20 Location Areas",
       callback: commandMap,
     },
     mapb: {
       name: "mapb",
-      "description": "Get the previous 20 Location Areas",
+      description: "Get the previous 20 Location Areas",
       callback: commandMapBack,
+    },
+    explore: {
+      name: "explore",
+      description: "Explore the Pokemon in the specified location area",
+      callback: commandExplore,
     },
     exit: {
       name: "exit",

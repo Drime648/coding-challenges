@@ -1,11 +1,13 @@
 import { Cache } from "./pokecache.js"
 
+const SECOND = 1000;
+
 export class PokeAPI {
   private static readonly baseURL = "https://pokeapi.co/api/v2/location-area";
-  private cache: Cache;
+  cache: Cache;
 
   constructor() {
-    this.cache = new Cache(30);
+    this.cache = new Cache(30 * SECOND);
   }
 
   async fetchLocationAreas(pageURL?: string): Promise<ShallowLocationAreas> {

@@ -16,7 +16,7 @@ export function startREPL() {
     const command = tokens[0];
     if (command) {
       if (Object.hasOwn(commands, command)) {
-        await commands[command].callback(state);
+        await commands[command].callback(state, ...tokens.slice(1));
       } else {
         console.log(`Invalid command: ${command}`);
       }
