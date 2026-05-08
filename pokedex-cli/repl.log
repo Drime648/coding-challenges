@@ -1,0 +1,17 @@
+
+> pokedex-cli@1.0.0 dev
+> npm run build && npm run start
+
+
+> pokedex-cli@1.0.0 build
+> npx tsc
+
+
+> pokedex-cli@1.0.0 start
+> node dist/main.js
+
+Pokedex > Pokedex > Pokedex > Pokedex > Your command was: dfsa
+Pokedex > Your command was: asdf
+Pokedex > Your command was: fd
+Pokedex > Pokedex > Your command was: d
+Pokedex > 

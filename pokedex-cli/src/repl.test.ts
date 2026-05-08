@@ -9,7 +9,12 @@ describe.each([
   {
     input: "  ",
     expected: []
+  },
+  {
+    input: "HELLO World",
+    expected: ["hello", "world"]
   }
+
 ])("cleanInput(%s)", ({ input, expected }) => {
   test(`Expected: ${expected}`, () => {
     let actual = cleanInput(input);
