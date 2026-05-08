@@ -3,6 +3,7 @@ import { State } from "./state.js"
 export async function commandExplore(state: State, ...args: string[]) {
   if (args.length !== 1) {
     console.log("Must specify location area!");
+    return;
   }
   const locationAreaName = args[0];
 

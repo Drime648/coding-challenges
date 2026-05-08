@@ -4,6 +4,7 @@ import { State } from "./state.js";
 export async function commandCatch(state: State, ...args: string[]) {
   if (args.length !== 1) {
     console.log("Must specify a pokemon!");
+    return;
   }
   const name = args[0];
   try {
