@@ -1,6 +1,4 @@
-import { stdin, stdout } from "node:process"
-import { createInterface } from "node:readline"
-import { getCommands } from "./command.js";
+import { initState } from "./state.js";
 
 
 
@@ -10,18 +8,19 @@ export function cleanInput(input: string): string[] {
 }
 
 export function startREPL() {
-  const commands = getCommands();
-  const repl = createInterface({
-    input: stdin,
-    output: stdout,
-    prompt: "Pokedex > "
-  });
+  let state = initState();
+  const commands = state.commands;
+  const repl = state.rl;
   repl.prompt();
   repl.on("line", (input: string) => {
     const tokens = cleanInput(input)
     const command = tokens[0];
     if (command) {
-      commands[command].callback();
+      if (Object.hasOwn(commands, command)) {
+        commands[command].callback(state);
+      } else {
+        console.log(`Invalid command: ${command}`);
+      }
     }
     repl.prompt();
   });
