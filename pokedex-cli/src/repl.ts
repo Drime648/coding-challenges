@@ -1,3 +1,4 @@
+import { commandExit } from "./command_exit.js";
 import { initState } from "./state.js";
 
 
@@ -23,5 +24,9 @@ export function startREPL() {
     }
     repl.prompt();
   });
+
+  repl.on("SIGINT", () => {
+    commandExit(state);
+  })
 }
 
