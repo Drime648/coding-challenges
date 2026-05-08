@@ -10,14 +10,6 @@
 > pokedex-cli@1.0.0 start
 > node dist/main.js
 
-Pokedex > tentacool
-tentacruel
-magikarp
-gyarados
-remoraid
-octillery
-wingull
-pelipper
-shellos
-gastrodon
+Pokedex > Throwing a Pokeball at squirtle...
+squirtle was caught!
 Pokedex > Closing the Pokedex... Goodbye!
